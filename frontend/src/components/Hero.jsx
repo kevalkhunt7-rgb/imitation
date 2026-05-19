@@ -1,0 +1,293 @@
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
+
+// Slider data containing different models, jewelry variants, and specific copy
+const SLIDE_DATA = [
+  {
+    tag: "New Spring Collection 2026",
+    title: "Timeless Elegance",
+    highlight: "Crafted for Every Woman",
+    desc: "Discover our exquisite collection of handcrafted imitation jewelry that celebrates your unique beauty and style.",
+    image: "https://images.unsplash.com/photo-1675881149187-8faaf934e14a?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=80&w=1080&h=1200",
+    alt: "Luxury jewelry model showcasing diamond necklaces"
+  },
+  {
+    tag: "Bridal Special",
+    title: "Royal Heritage",
+    highlight: "Moments Made Golden",
+    desc: "Adorn yourself with intricate, traditional imitation sets designed to bring out majestic splendor on your big day.",
+    image: "https://images.unsplash.com/photo-1601121141461-9d6647bca1ed?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=80&w=1080&h=1200",
+    alt: "Bridal jewelry variant showcasing traditional gold chokers"
+  },
+  {
+    tag: "Minimalist Luxe",
+    title: "Modern Statement",
+    highlight: "Subtle Yet Striking",
+    desc: "Explore sleek, contemporary geometric designs that elevate your everyday attire effortlessly.",
+    image: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=80&w=1080&h=1200",
+    alt: "Minimalist modern rings and fine imitation bracelets"
+  }
+];
+
+export function Hero() {
+  const [current, setCurrent] = useState(0);
+  const [direction, setDirection] = useState(0); // -1 for left, 1 for right
+
+  // Slide navigation handlers
+  const handleNext = () => {
+    setDirection(1);
+    setCurrent((prev) => (prev + 1) % SLIDE_DATA.length);
+  };
+
+  const handlePrev = () => {
+    setDirection(-1);
+    setCurrent((prev) => (prev - 1 + SLIDE_DATA.length) % SLIDE_DATA.length);
+  };
+
+  // Auto-slide effect (changes slide every 6 seconds)
+  useEffect(() => {
+    const timer = setInterval(handleNext, 6000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Framer motion variants for the sliding/fade effect
+  const slideVariants = {
+    enter: (dir) => ({
+      x: dir > 0 ? 100 : -100,
+      opacity: 0
+    }),
+    center: {
+      x: 0,
+      opacity: 1,
+      transition: { duration: 0.8, ease: "easeInOut" }
+    },
+    exit: (dir) => ({
+      x: dir > 0 ? -100 : 100,
+      opacity: 0,
+      transition: { duration: 0.8, ease: "easeInOut" }
+    })
+  };
+
+  const currentSlide = SLIDE_DATA[current];
+
+  return (
+    <section className="relative h-screen overflow-hidden bg-gradient-to-br from-[#FAF9F6] via-[#FFE5E8] to-[#F7E7CE]">
+      {/* Animated background particles */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {[...Array(20)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-2 h-2 rounded-full bg-gradient-to-r from-[#B76E79]/20 to-[#D4AF37]/20"
+            animate={{
+              y: [0, -100, 0],
+              x: [0, Math.random() * 50 - 25, 0],
+              opacity: [0, 1, 0],
+            }}
+            transition={{
+              duration: 4 + Math.random() * 3,
+              repeat: Infinity,
+              delay: Math.random() * 2,
+            }}
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+          />
+        ))}
+      </div>
+
+      <div className="container mx-auto px-4 lg:px-8 h-full">
+        <div className="grid lg:grid-cols-2 gap-8 h-full items-center relative">
+          
+          {/* Left Content */}
+          <div className="z-10 text-center lg:text-left mt-16 lg:mt-0 flex flex-col justify-center h-full">
+            <AnimatePresence mode="wait" custom={direction}>
+              <motion.div
+                key={current}
+                custom={direction}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.5 }}
+              >
+                {/* Badge Tag */}
+                <div className="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-white/50 backdrop-blur-sm mb-6">
+                  <Sparkles className="w-4 h-4 text-[#B76E79]" />
+                  <span className="tracking-wider text-xs md:text-sm text-[#2C2C2C]">
+                    {currentSlide.tag}
+                  </span>
+                </div>
+
+                {/* Main Headline */}
+                <h1
+                  className="font-serif mb-6"
+                  style={{
+                    fontSize: 'clamp(2.5rem, 5.5vw, 4.5rem)',
+                    lineHeight: 1.1,
+                    fontWeight: 700,
+                    color: '#2C2C2C',
+                  }}
+                >
+                  {currentSlide.title}
+                  <br />
+                  <span
+                    style={{
+                      background: 'linear-gradient(135deg, #B76E79 0%, #D4AF37 100%)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      backgroundClip: 'text',
+                    }}
+                  >
+                    {currentSlide.highlight}
+                  </span>
+                </h1>
+
+                {/* Description */}
+                <p
+                  className="mb-8 max-w-lg mx-auto lg:mx-0"
+                  style={{
+                    fontSize: '1.125rem',
+                    lineHeight: 1.8,
+                    color: '#2C2C2C',
+                    opacity: 0.8,
+                  }}
+                >
+                  {currentSlide.desc}
+                </p>
+              </motion.div>
+            </AnimatePresence>
+
+            {/* Static Interactive Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+              <motion.button
+                whileHover={{ scale: 1.05, boxShadow: '0 20px 40px rgba(183, 110, 121, 0.3)' }}
+                whileTap={{ scale: 0.95 }}
+                className="px-8 py-4 rounded-full font-medium tracking-wide transition-all duration-300 text-white"
+                style={{
+                  background: 'linear-gradient(135deg, #B76E79 0%, #D4AF37 100%)',
+                  fontSize: '1rem',
+                }}
+              >
+                Shop Collection
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="px-8 py-4 rounded-full font-medium tracking-wide bg-white/70 backdrop-blur-sm hover:bg-white transition-all duration-300 text-[#2C2C2C]"
+                style={{
+                  fontSize: '1rem',
+                  border: '1px solid rgba(183, 110, 121, 0.3)',
+                }}
+              >
+                View Lookbook
+              </motion.button>
+            </div>
+
+            {/* Static Stats Section */}
+            <div className="grid grid-cols-3 gap-6 mt-12 max-w-md mx-auto lg:mx-0">
+              {[
+                { value: '10K+', label: 'Happy Customers' },
+                { value: '500+', label: 'Unique Designs' },
+                { value: '4.9', label: 'Customer Rating' },
+              ].map((stat, index) => (
+                <div key={index} className="text-center lg:text-left">
+                  <div className="font-serif text-2xl md:text-3xl font-bold text-[#B76E79]">
+                    {stat.value}
+                  </div>
+                  <div className="text-xs md:text-sm text-[#2C2C2C] opacity-70">{stat.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right Slider Image */}
+          <div className="relative hidden lg:flex items-center justify-center h-[75vh]">
+            <div className="relative w-full max-w-[450px] h-[550px]">
+              
+              {/* Glow backdrop effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-[#B76E79]/20 to-[#D4AF37]/20 blur-3xl rounded-full" />
+              
+              {/* Animated Frame Containers */}
+              <div className="absolute inset-0 z-10 w-full h-full overflow-hidden rounded-3xl shadow-2xl">
+                <AnimatePresence initial={false} custom={direction}>
+                  <motion.img
+                    key={current}
+                    src={currentSlide.image}
+                    alt={currentSlide.alt}
+                    custom={direction}
+                    variants={slideVariants}
+                    initial="enter"
+                    animate="center"
+                    exit="exit"
+                    className="absolute w-full h-full object-cover"
+                  />
+                </AnimatePresence>
+              </div>
+
+              {/* Decorative Geometric Rings */}
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
+                className="absolute -top-8 -right-8 w-32 h-32 border-2 border-[#D4AF37]/30 rounded-full z-0"
+              />
+              <motion.div
+                animate={{ rotate: -360 }}
+                transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+                className="absolute -bottom-8 -left-8 w-40 h-40 border-2 border-[#B76E79]/30 rounded-full z-0"
+              />
+
+              {/* Manual Controls */}
+              <div className="absolute -bottom-16 left-0 right-0 flex justify-between items-center z-20 px-4">
+                <button 
+                  onClick={handlePrev}
+                  className="p-3 rounded-full bg-white/80 backdrop-blur-sm shadow-md hover:bg-white text-[#2C2C2C] transition"
+                  aria-label="Previous slide"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                
+                {/* Dot Indicators */}
+                <div className="flex space-x-2">
+                  {SLIDE_DATA.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => {
+                        setDirection(idx > current ? 1 : -1);
+                        setCurrent(idx);
+                      }}
+                      className={`h-2 transition-all duration-300 rounded-full ${
+                        idx === current ? 'w-8 bg-[#B76E79]' : 'w-2 bg-[#B76E79]/40'
+                      }`}
+                    />
+                  ))}
+                </div>
+
+                <button 
+                  onClick={handleNext}
+                  className="p-3 rounded-full bg-white/80 backdrop-blur-sm shadow-md hover:bg-white text-[#2C2C2C] transition"
+                  aria-label="Next slide"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      {/* Micro Scroll indicator */}
+      <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 hidden md:block">
+        <motion.div
+          animate={{ y: [0, 8, 0] }}
+          transition={{ duration: 2, repeat: Infinity }}
+          className="w-6 h-10 border-2 border-[#B76E79]/60 rounded-full flex justify-center pt-2"
+        >
+          <div className="w-1 h-2 bg-[#B76E79] rounded-full" />
+        </motion.div>
+      </div>
+    </section>
+  );
+}
