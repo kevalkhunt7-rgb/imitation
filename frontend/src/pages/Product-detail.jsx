@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Tilt from 'react-parallax-tilt'; // IMPORT THE TILT COMPONENT
 import {
     Heart,
     ShoppingBag,
@@ -14,7 +15,7 @@ import {
     Minus
 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
-import { useWishlist } from '../context/WishlistContext'; // 1. IMPORT YOUR WISHLIST CONTEXT
+import { useWishlist } from '../context/WishlistContext';
 import { useParams } from 'react-router-dom';
 
 // IMPORT DATA
@@ -32,8 +33,7 @@ function ProductDetailPage({ product }) {
     // Cart Global States
     const { addToCart, cart } = useCart();
     
-    // 2. CONSUME GLOBAL WISHLIST FUNCTIONS
-    // (Adjusting naming parameters if your context uses 'wishlist' instead of 'wishlistItems', or 'toggleWishlist')
+    // CONSUME GLOBAL WISHLIST FUNCTIONS
     const { wishlist, toggleWishlist, addToWishlist, removeFromWishlist } = useWishlist();
     
     const [activeImageIdx, setActiveImageIdx] = useState(0);
@@ -45,10 +45,13 @@ function ProductDetailPage({ product }) {
     const [zoomStyle, setZoomStyle] = useState({ display: 'none' });
     const imgRef = useRef(null);
 
+    // Glow Track Coordinates for Fake 3D Light Layer
+    const [glowStyle, setGlowStyle] = useState({ opacity: 0 });
+
     // Check statuses against global arrays
     const isAlreadyInCart = currentProduct ? cart.some((item) => item.id === currentProduct.id) : false;
     
-    // 3. REACTIVE CHECK: See if product currently exists in global wishlist vault
+    // REACTIVE CHECK
     const isWishlisted = currentProduct && wishlist 
         ? wishlist.some((item) => item.id === currentProduct.id) 
         : false;
@@ -60,11 +63,9 @@ function ProductDetailPage({ product }) {
         const target = imgRef.current;
         const rect = target.getBoundingClientRect();
 
-        // Calculate cursor positions relative to the image element bounding track
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
 
-        // Convert positional values into cleanly readable map percentages
         const xPercent = (x / rect.width) * 100;
         const yPercent = (y / rect.height) * 100;
 
@@ -83,6 +84,21 @@ function ProductDetailPage({ product }) {
         setZoomStyle({ display: 'none' });
     };
 
+    // Glow overlay tracker handler for Fake 3D Mode
+    const handleGlowMove = (e) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        setGlowStyle({
+            opacity: 1,
+            background: `radial-gradient(circle 240px at ${x}px ${y}px, rgba(232, 199, 183, 0.25), transparent 80%)`
+        });
+    };
+
+    const handleGlowLeave = () => {
+        setGlowStyle({ opacity: 0 });
+    };
+
     if (!currentProduct) {
         return (
             <div className="min-h-screen flex items-center justify-center text-stone-500 font-medium tracking-widest bg-[#FDF8F3]">
@@ -91,7 +107,6 @@ function ProductDetailPage({ product }) {
         );
     }
 
-    // Fallback support for single string image items
     const activeDisplayImage = currentProduct.images?.[activeImageIdx] || currentProduct.image;
     
     const handleAddToBasket = () => {
@@ -101,13 +116,10 @@ function ProductDetailPage({ product }) {
         alert(`${currentProduct.title} added to shopping casket!`);
     };
 
-    // 4. HANDLE WISHLIST PERSISTENCE CLICK
     const handleWishlistToggle = () => {
         if (toggleWishlist) {
-            // If your file has a unified toggle function:
             toggleWishlist(currentProduct);
         } else {
-            // Fallback manual condition logic if your context splits add/remove actions
             if (isWishlisted) {
                 removeFromWishlist(currentProduct.id);
             } else {
@@ -160,7 +172,7 @@ function ProductDetailPage({ product }) {
                             </button>
                         ))}
 
-                        {/* Interactive 360 Toggle Button */}
+                        {/* Interactive 360/3D Toggle Button */}
                         <button
                             onClick={() => setIs360Mode(true)}
                             className={`w-20 h-24 md:w-24 md:h-28 rounded-2xl overflow-hidden border transition-all duration-500 flex flex-col items-center justify-center gap-1.5 flex-shrink-0 text-[10px] font-bold tracking-widest ${is360Mode
@@ -169,7 +181,7 @@ function ProductDetailPage({ product }) {
                                 }`}
                         >
                             <RefreshCw className={`w-4 h-4 ${is360Mode ? 'animate-spin' : 'text-[#B76E79]'}`} style={{ animationDuration: '6s' }} />
-                            <span>360° VIEW</span>
+                            <span>3D EXPERIENCE</span>
                         </button>
                     </div>
 
@@ -207,31 +219,58 @@ function ProductDetailPage({ product }) {
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     exit={{ opacity: 0 }}
-                                    className="w-full h-full bg-gradient-to-b from-stone-50 to-white relative flex flex-col items-center justify-center p-6 text-center"
+                                    className="w-full h-full relative overflow-hidden bg-gradient-to-b from-stone-50 to-white"
                                 >
-                                    <img
-                                        src={currentProduct.images?.[0] || currentProduct.image}
-                                        alt="360 Interactive Layout View"
-                                        className="w-4/5 h-auto object-contain mix-blend-darken animate-pulse opacity-90"
-                                    />
-                                    <div className="absolute bottom-6 bg-stone-900 text-[#FDF8F3] px-5 py-2.5 rounded-full text-[10px] font-medium tracking-[0.15em] shadow-lg flex items-center gap-2">
-                                        <Sparkles className="w-3 h-3 text-[#D4AF37] animate-spin" style={{ animationDuration: '4s' }} />
-                                        <span>SWIPE OR MOVE DEVICE TO ROTATE PIECE</span>
-                                    </div>
+                                    {/* 3D PARALLAX TILT CONTAINER */}
+                                    <Tilt
+                                        perspective={1200}
+                                        glareEnable={false}
+                                        tiltMaxAngleX={12}
+                                        tiltMaxAngleY={12}
+                                        scale={1.02}
+                                        gyroscope={true}
+                                        transitionSpeed={1500}
+                                        className="w-full h-full p-8 flex flex-col items-center justify-center relative preserve-3d"
+                                        onMouseMove={handleGlowMove}
+                                        onMouseLeave={handleGlowLeave}
+                                    >
+                                        {/* Dynamic Spotlight Glow Track */}
+                                        <div 
+                                            className="absolute inset-0 pointer-events-none transition-opacity duration-300 z-30 mix-blend-screen"
+                                            style={glowStyle}
+                                        />
+
+                                        {/* Parallax Product Image (moves slightly outward away from background layer) */}
+                                        <img
+                                            src={currentProduct.images?.[0] || currentProduct.image}
+                                            alt="3D Interactive Layout View"
+                                            className="w-4/5 h-auto object-contain mix-blend-darken transform-3d select-none pointer-events-none drop-shadow-[0_35px_40px_rgba(44,44,44,0.15)] group-hover:drop-shadow-[0_45px_50px_rgba(183,110,121,0.25)] transition-shadow duration-500"
+                                            style={{ transform: 'translateZ(60px)' }}
+                                        />
+
+                                        {/* Bottom Action Subtext Banner (set structural depth via translateZ) */}
+                                        <div 
+                                            className="absolute bottom-6 bg-stone-900 text-[#FDF8F3] px-5 py-2.5 rounded-full text-[10px] font-medium tracking-[0.15em] shadow-lg flex items-center gap-2 transform-3d pointer-events-none z-20"
+                                            style={{ transform: 'translateZ(30px)' }}
+                                        >
+                                            <Sparkles className="w-3 h-3 text-[#D4AF37] animate-spin" style={{ animationDuration: '4s' }} />
+                                            <span>MOVE CURSOR TO ROTATE PIECE IN 3D SPACE</span>
+                                        </div>
+                                    </Tilt>
                                 </motion.div>
                             )}
                         </AnimatePresence>
 
                         {/* Custom Tag Indicator Overlay */}
                         {currentProduct.tag && (
-                            <div className="absolute top-5 left-5 bg-stone-900 border border-stone-800 text-[#D4AF37] text-[10px] font-bold tracking-[0.15em] px-4 py-2 rounded-full shadow-md flex items-center gap-1.5">
+                            <div className="absolute top-5 left-5 bg-stone-900 border border-stone-800 text-[#D4AF37] text-[10px] font-bold tracking-[0.15em] px-4 py-2 rounded-full shadow-md flex items-center gap-1.5 z-40">
                                 <Sparkles className="w-3 h-3 fill-current" />
                                 <span>{currentProduct.tag}</span>
                             </div>
                         )}
 
                         {/* Virtual Try-On Interaction Triggers */}
-                        <button className="absolute bottom-5 right-5 bg-white/90 backdrop-blur-md hover:bg-stone-950 hover:text-white text-stone-900 text-[10px] font-bold tracking-[0.2em] px-5 py-3 rounded-xl shadow-md transition-all duration-300 border border-stone-200/40 flex items-center gap-2 group">
+                        <button className="absolute bottom-5 right-5 bg-white/90 backdrop-blur-md hover:bg-stone-950 hover:text-white text-stone-900 text-[10px] font-bold tracking-[0.2em] px-5 py-3 rounded-xl shadow-md transition-all duration-300 border border-stone-200/40 flex items-center gap-2 group z-40">
                             <Eye className="w-3.5 h-3.5 text-[#B76E79] group-hover:text-[#D4AF37] transition-colors duration-300" />
                             <span>VIRTUAL TRY-ON</span>
                         </button>
@@ -372,7 +411,7 @@ function ProductDetailPage({ product }) {
                             </motion.button>
 
                             <button className="w-full bg-stone-900 hover:bg-stone-950 text-[#FDF8F3] font-bold text-[11px] tracking-[0.2em] py-4.5 rounded-full shadow-md transition-all duration-300">
-                                RESERVE & COMPLIMENTARY EXPRESS BUY
+                                'RESERVE & COMPLIMENTARY EXPRESS BUY'
                             </button>
                         </div>
                     </div>

@@ -21,3 +21,73 @@
   overflow-x: hidden;
   position: relative;
 }
+
+/* ── Luxury Scrollbar · Jewelry Edition ─────────────────── */
+
+/* Scrollbar width */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+/* Track — invisible glass */
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Thumb — gold → rose gold gradient with soft glow */
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #D4AF37 0%, #B76E79 100%);
+  border-radius: 100px;
+  box-shadow: 0 0 8px rgba(212,175,55,0.55),
+               0 0 2px rgba(212,175,55,0.3);
+  transition: all 0.35s ease;
+}
+
+/* Hover — deeper gradient, intensified glow */
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    180deg,
+    #F0C84A 0%,
+    #B76E79 55%,
+    #D4A0A8 100%
+  );
+  box-shadow: 0 0 18px rgba(212,175,55,0.85),
+               0 0 5px  rgba(212,175,55,0.5);
+}
+
+/* ── Scroll Progress Bar ────────────────────────────────── */
+/* Add #progress-bar and #progress-fill divs to your HTML  */
+
+#progress-bar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: rgba(44,44,44,0.08);
+  z-index: 9999;
+}
+
+#progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #D4AF37, #B76E79, #D4AF37);
+  background-size: 200% 100%;
+  animation: luxShimmer 2s ease infinite;
+  box-shadow: 0 0 8px rgba(212,175,55,0.8),
+               0 0 16px rgba(212,175,55,0.4);
+  transition: width 0.1s ease;
+}
+
+@keyframes luxShimmer {
+  0%   { background-position: 0%   50% }
+  50%  { background-position: 100% 50% }
+  100% { background-position: 0%   50% }
+}
+
+/* ── Progress JS (add to your script) ───────────────────── */
+/*
+window.addEventListener('scroll', () => {
+  const pct = window.scrollY /
+    (document.documentElement.scrollHeight - window.innerHeight) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+});
+*/

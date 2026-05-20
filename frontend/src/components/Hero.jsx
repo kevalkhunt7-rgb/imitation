@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Link } from 'react-router';
 
 // Slider data containing different models, jewelry variants, and specific copy
 const SLIDE_DATA = [
@@ -100,7 +101,7 @@ export function Hero() {
       <div className="container mx-auto px-4 lg:px-8 h-full">
         {/* FIXED CONTAINER: flex-col-reverse pulls the image block to the top visual layer on mobile screens */}
         <div className="flex flex-col-reverse lg:grid lg:grid-cols-2 gap-12 lg:gap-8 h-full items-center relative">
-          
+
           {/* Left Content Column */}
           <div className="z-10 text-center lg:text-left mt-8 lg:mt-0 flex flex-col justify-center w-full">
             <AnimatePresence mode="wait" custom={direction}>
@@ -161,17 +162,20 @@ export function Hero() {
 
             {/* Static Interactive Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <motion.button
-                whileHover={{ scale: 1.05, boxShadow: '0 20px 40px rgba(183, 110, 121, 0.3)' }}
-                whileTap={{ scale: 0.95 }}
-                className="px-8 py-4 rounded-full font-medium tracking-wide transition-all duration-300 text-white"
-                style={{
-                  background: 'linear-gradient(135deg, #B76E79 0%, #D4AF37 100%)',
-                  fontSize: '1rem',
-                }}
-              >
-                Shop Collection
-              </motion.button>
+              <Link to='/collections' >
+                <motion.button
+
+                  whileHover={{ scale: 1.05, boxShadow: '0 20px 40px rgba(183, 110, 121, 0.3)' }}
+                  whileTap={{ scale: 0.95 }}
+                  className="px-8 py-4 rounded-full font-medium tracking-wide transition-all duration-300 text-white"
+                  style={{
+                    background: 'linear-gradient(135deg, #B76E79 0%, #D4AF37 100%)',
+                    fontSize: '1rem',
+                  }}
+                >
+                  Shop Collection
+                </motion.button>
+              </Link>
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -205,10 +209,10 @@ export function Hero() {
           {/* Right Slider Image Column */}
           <div className="relative flex items-center justify-center h-[40vh] sm:h-[50vh] lg:h-[75vh] w-full mb-4 lg:mb-0">
             <div className="relative w-full max-w-[280px] sm:max-w-[380px] lg:max-w-[450px] h-full max-h-[350px] sm:max-h-[480px] lg:max-h-[550px]">
-              
+
               {/* Glow backdrop effect */}
               <div className="absolute inset-0 bg-gradient-to-r from-[#B76E79]/20 to-[#D4AF37]/20 blur-3xl rounded-full" />
-              
+
               {/* Animated Frame Containers */}
               <div className="absolute inset-0 z-10 w-full h-full overflow-hidden rounded-3xl shadow-2xl">
                 <AnimatePresence initial={false} custom={direction}>
@@ -240,14 +244,14 @@ export function Hero() {
 
               {/* Manual Controls */}
               <div className="absolute -bottom-14 sm:-bottom-16 left-0 right-0 flex justify-between items-center z-20 px-2 sm:px-4">
-                <button 
+                <button
                   onClick={handlePrev}
                   className="p-2 sm:p-3 rounded-full bg-white/80 backdrop-blur-sm shadow-md hover:bg-white text-[#2C2C2C] transition"
                   aria-label="Previous slide"
                 >
                   <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
-                
+
                 {/* Dot Indicators */}
                 <div className="flex space-x-2">
                   {SLIDE_DATA.map((_, idx) => (
@@ -257,14 +261,13 @@ export function Hero() {
                         setDirection(idx > current ? 1 : -1);
                         setCurrent(idx);
                       }}
-                      className={`h-2 transition-all duration-300 rounded-full ${
-                        idx === current ? 'w-6 sm:w-8 bg-[#B76E79]' : 'w-2 bg-[#B76E79]/40'
-                      }`}
+                      className={`h-2 transition-all duration-300 rounded-full ${idx === current ? 'w-6 sm:w-8 bg-[#B76E79]' : 'w-2 bg-[#B76E79]/40'
+                        }`}
                     />
                   ))}
                 </div>
 
-                <button 
+                <button
                   onClick={handleNext}
                   className="p-2 sm:p-3 rounded-full bg-white/80 backdrop-blur-sm shadow-md hover:bg-white text-[#2C2C2C] transition"
                   aria-label="Next slide"

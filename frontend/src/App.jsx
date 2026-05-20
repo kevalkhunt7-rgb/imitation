@@ -11,6 +11,8 @@ import { CartProvider } from './context/CartContext'
 import { WishlistProvider } from './context/WishlistContext'
 import PremiumCheckoutPage from './pages/Checkout'
 import CollectionsPage from './pages/Collections'
+import NotFoundPage from './pages/NotFound'
+import LookBookPage from './pages/Lookbook'
 
 function App() {
   return (
@@ -30,6 +32,8 @@ function App() {
               <Route path='/product/:id' element={<ProductDetailPage />} />
               <Route path='checkout' element={<PremiumCheckoutPage/>} />  
               <Route path='/collections' element={<CollectionsPage/>} />
+              <Route path='/*' element={<NotFoundPage/>} />
+              <Route path='/lookbook' element={<LookBookPage/>} />
             </Routes>
           </main>
         </CartProvider>
